@@ -1,7 +1,7 @@
 [submodule "lib/ncurses-snapshots"]
 	path = lib/ncurses-snapshots
 	url = https://github.com/ThomasDickey/ncurses-snapshots.git
-	branch = e12a453fc23c5ac586d72af46465e8ba92adb707
+	branch = master
 [submodule "lib/googletest"]
 	path = lib/googletest
 	url = https://github.com/google/googletest.git
