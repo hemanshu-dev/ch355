@@ -7,7 +7,7 @@ include(ExternalProject)
 find_package(PkgConfig REQUIRED)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g")
 
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/bin)
 
@@ -28,7 +28,7 @@ ExternalProject_ADD(ncurses PREFIX              ${LIB_DIR}/ncurses-snapshots/
                             SOURCE_DIR          ${LIB_DIR}/ncurses-snapshots/
                             INSTALL_DIR         ${LIB_DIR}/generated_libs/
                             BINARY_DIR          ${LIB_DIR}/ncurses-snapshots/build
-                            CONFIGURE_COMMAND   ${LIB_DIR}/ncurses-snapshots/configure --prefix=${LIB_DIR}/generated_libs --with-shared  --with-debug --with-pkg-config-libdir=${LIB_DIR}/generated_libs/lib64/pkgconfig/  --enable-widec  --enable-pc-files  --enable-ext-colors --enable-ext-mouse --with-gpm  --enable-sp-funcs  --with-cxx-binding --with-normal  --enable-expanded  --enable-ext-putwin  --with-profile --with-trace  --with-valgrind  --with-manpages
+                            CONFIGURE_COMMAND   ${LIB_DIR}/ncurses-snapshots/configure --prefix=${LIB_DIR}/generated_libs --with-shared  --with-debug --with-pkg-config-libdir=${LIB_DIR}/generated_libs/lib64/pkgconfig/  --enable-widec  --enable-pc-files  --enable-ext-colors --enable-ext-mouse --with-gpm  --enable-sp-funcs --enable-check-size  --with-cxx-binding --with-normal  --enable-expanded  --enable-ext-putwin  --with-profile --with-trace  --with-valgrind  --with-manpages
                             BUILD_COMMAND   make -j$(nproc)
                             INSTALL_COMMAND make install
                             )
@@ -45,7 +45,8 @@ ExternalProject_ADD(googletest  PREFIX              ${LIB_DIR}/googletest/
 add_executable(ch355)
 
 target_sources(ch355 PRIVATE ${SRC_DIR}/main.cpp
-                     PRIVATE ${SRC_DIR}/app.cpp)
+                     PRIVATE ${SRC_DIR}/app.cpp
+                     PRIVATE ${SRC_DIR}/chessboard.cpp)
 
 target_include_directories(ch355 PRIVATE ${INCLUDE_DIR}
                                  PRIVATE ${LIB_DIR}/generated_libs/include)
