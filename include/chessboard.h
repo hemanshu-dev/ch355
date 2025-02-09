@@ -4,6 +4,9 @@
 #include "ncursesw/ncurses.h"
 #include <cstdint>
 #include <utility>
+
+#include "chesspeice.h"
+
 class ChessBoard {
 private:
   const std::pair<uint16_t, uint16_t> _minWindowSize{26, 26};
@@ -27,9 +30,10 @@ public:
   void operator=(const ChessBoard &&) = delete;
   ChessBoard(const ChessBoard &) = delete;
 
-  explicit ChessBoard(uint16_t width, uint16_t height);
   ~ChessBoard();
+  explicit ChessBoard(uint16_t width, uint16_t height);
   void draw(WINDOW *rootWindow, uint16_t nrows, uint16_t ncols);
+  void drawPeice(WINDOW* window, ChessPeice& peice);
   void rotate();
   void update();
   void init();
