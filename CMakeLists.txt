@@ -46,7 +46,8 @@ add_executable(ch355)
 
 target_sources(ch355 PRIVATE ${SRC_DIR}/main.cpp
                      PRIVATE ${SRC_DIR}/app.cpp
-                     PRIVATE ${SRC_DIR}/chessboard.cpp)
+                     PRIVATE ${SRC_DIR}/chessboard.cpp
+                     PRIVATE ${SRC_DIR}/chesspeice.cpp)
 
 target_include_directories(ch355 PRIVATE ${INCLUDE_DIR}
                                  PRIVATE ${LIB_DIR}/generated_libs/include)

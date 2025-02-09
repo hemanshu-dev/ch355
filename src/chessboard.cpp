@@ -11,8 +11,10 @@ ChessBoard::ChessBoard(uint16_t width, uint16_t height)
  * @brief Initialize chessboard attribute like color size etc.
  */
 void ChessBoard::init() {
-  init_pair(Colors::EMPTY_BLACK_CELL, COLOR_RED, COLOR_RED);
+  init_pair(Colors::EMPTY_BLACK_CELL, COLOR_BLACK, COLOR_RED);
   init_pair(Colors::EMPTY_WHITE_CELL, COLOR_WHITE, COLOR_BLUE);
+  init_pair(Colors::WHITE_PEICE_WHITE_CELL, COLOR_WHITE,COLOR_BLUE);
+  init_pair(Colors::WHITE_PEICE_BLACK_CELL, COLOR_WHITE, COLOR_BLUE);
 }
 
 ChessBoard::~ChessBoard() {}
@@ -61,7 +63,31 @@ void ChessBoard::draw(WINDOW *rootWindow, uint16_t nrows, uint16_t ncols) {
     }
   }
   wrefresh(rootWindow);
+  ChessPeice* peice = ChessPeiceFactory::getInstance()->
+                        getPeice(ChessPeiceFactory::PeiceType::KNIGHT);
+  drawPeice(rootWindow,*peice);
 }
+
+void ChessBoard::drawPeice(WINDOW* rootWindow, ChessPeice& peice){
+    const char** asset = peice.getAsset();
+    uint8_t yCellIndex = peice.getCoordinates().second;
+    uint8_t xCellIndex = peice.getCoordinates().first;
+
+    wattron(rootWindow,
+              COLOR_PAIR(!((xCellIndex + yCellIndex) & 1) ? Colors::WHITE_PEICE_WHITE_CELL
+                                                  : Colors::WHITE_PEICE_BLACK_CELL));
+    
+  for (uint8_t cellRow = 1; cellRow < 4; cellRow++) {
+    mvwprintw(rootWindow, (yCellIndex * 3) + cellRow, (xCellIndex * 6) + 2,
+              "%s", asset[cellRow-1]);
+  }
+    wattroff(rootWindow,
+              COLOR_PAIR(!((xCellIndex + yCellIndex) & 1) ? Colors::WHITE_PEICE_WHITE_CELL
+                                                  : Colors::WHITE_PEICE_BLACK_CELL));
+
+  wrefresh(rootWindow);
+}
+
 
 /**
  * @brief Rotate the Board 180 degrees.
