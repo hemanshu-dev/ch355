@@ -1,4 +1,5 @@
 #include "chesspeice.h"
+#include "ncursesw/ncurses.h"
 #include <utility>
 
 ChessPeiceFactory *ChessPeiceFactory::_instance = nullptr;
@@ -13,18 +14,112 @@ ChessPeiceFactory *ChessPeiceFactory::getInstance() {
   return _instance;
 }
 
-ChessPeice *ChessPeiceFactory::getPeice(PeiceType peiceType) {
-  return new Knight(true, std::make_pair(5, 5));
+ChessPeice *
+ChessPeiceFactory::getPeice(PeiceType peiceType, bool isWhite,
+                            std::pair<uint8_t, uint8_t> coordinates) {
+  switch (peiceType) {
+  case PeiceType::KNIGHT: {
+    return new Knight(isWhite, coordinates);
+  }
+  case PeiceType::ROOK: {
+    return new Rook(isWhite, coordinates);
+  }
+  case PeiceType::PAWN: {
+    return new Pawn(isWhite, coordinates);
+  }
+  case PeiceType::BISHOP: {
+    return new Bishop(isWhite, coordinates);
+  }
+  case PeiceType::KING: {
+    return new King(isWhite, coordinates);
+  }
+  case PeiceType::QUEEN: {
+    return new Queen(isWhite, coordinates);
+  }
+  default: {
+    return nullptr;
+  }
+  }
 }
 
-ChessPeice::ChessPeice(bool isWhite,
+ChessPeice::ChessPeice(bool isWhitePeice,
                        std::pair<uint8_t, uint8_t> currentCoordinates)
-    : _isWhite(isWhite), _currentCoordinates(currentCoordinates) {}
+    : isWhite(isWhitePeice), _currentCoordinates(currentCoordinates) {}
 
-std::pair<uint8_t, uint8_t> ChessPeice::getCoordinates()const 
-{ return _currentCoordinates; }
+std::pair<uint8_t, uint8_t> ChessPeice::getCoordinates() const {
+  return _currentCoordinates;
+}
+
+void ChessPeice::setCoordinates(const std::pair<uint8_t, uint8_t> &coordinates) {
+  if (coordinates.first >= 0 && coordinates.first < 8 &&
+      coordinates.second >= 0 && coordinates.second < 8) {
+    this->_currentCoordinates = coordinates;
+  }
+}
+
+const char **ChessPeice::getAsset() { return asset; }
+
+void Knight::initAsset() {
+  asset[0] = "▂▟▟ ";
+  asset[1] = "▔▐▓ ";
+  asset[2] = "▃▓▓▙";
+}
+void Pawn::initAsset() {
+  asset[0] = "▟██▙";
+  asset[1] = " ▟▙";
+  asset[2] = "▟██▙";
+}
+
+void Rook::initAsset() {
+  asset[0] = "▙▟▙▟";
+  asset[1] = " ▓▓";
+  asset[2] = "▟██▙";
+}
+
+void Bishop::initAsset() {
+  asset[0] = "▜▓▛";
+  asset[1] = "▀█▀";
+  asset[2] = "▟█▙";
+}
+
+void King::initAsset() {
+  asset[0] = "▜➕▛";
+  asset[1] = " ▓▓";
+  asset[2] = "▟██▙";
+}
+
+void Queen::initAsset() {
+  asset[0] = "▜▟▙▛";
+  asset[1] = " ▙▟ ";
+  asset[2] = "▟▓▓▙";
+}
 
 Knight::Knight(bool isWhite, std::pair<uint8_t, uint8_t> coordinates)
-    : ChessPeice(isWhite, coordinates) {}
+    : ChessPeice(isWhite, coordinates) {
+  this->initAsset();
+}
 
-const char **Knight::getAsset() { return asset; }
+Rook::Rook(bool isWhite, std::pair<uint8_t, uint8_t> coordinates)
+    : ChessPeice(isWhite, coordinates) {
+  this->initAsset();
+}
+
+Pawn::Pawn(bool isWhite, std::pair<uint8_t, uint8_t> coordinates)
+    : ChessPeice(isWhite, coordinates) {
+  this->initAsset();
+}
+
+Bishop::Bishop(bool isWhite, std::pair<uint8_t, uint8_t> coordinates)
+    : ChessPeice(isWhite, coordinates) {
+  this->initAsset();
+}
+
+King::King(bool isWhite, std::pair<uint8_t, uint8_t> coordinates)
+    : ChessPeice(isWhite, coordinates) {
+  this->initAsset();
+}
+
+Queen::Queen(bool isWhite, std::pair<uint8_t, uint8_t> coordinates)
+    : ChessPeice(isWhite, coordinates) {
+  this->initAsset();
+}
