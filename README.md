@@ -4,6 +4,7 @@ Terminal based ch355 game.
 
 <p align="center">
     <img align="center" alt="ch355" src="assets/ChessBoard.png"></img>
+    <img align="center" alt="ch355" src="assets/ChessBoard2.png"></img>
 </p>
 
 ## Setup
