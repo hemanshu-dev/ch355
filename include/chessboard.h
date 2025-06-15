@@ -4,6 +4,7 @@
 #include "ncursesw/ncurses.h"
 #include <cstdint>
 #include <utility>
+#include <vector>
 
 #include "chesspeice.h"
 
@@ -13,8 +14,11 @@ private:
   std::pair<uint16_t, uint16_t> _currentWindowSize;
   const char *whiteCell = {"WWW"};
   const char *blackCell = {"bbb"};
-  void _printCell(WINDOW *rootWindow, bool isWhite, uint8_t xCellIndex,
+  void _printCell(WINDOW *rootWindow, bool isWhiteCell, uint8_t xCellIndex,
                   uint8_t yCellIndex);
+  std::vector<ChessPeice*> _blackChessPeices{16,nullptr};
+
+  std::vector<ChessPeice*> _whiteChessPeices{16,nullptr};
 
 public:
   enum Colors : short {
@@ -29,7 +33,7 @@ public:
   void operator=(const ChessBoard &) = delete;
   void operator=(const ChessBoard &&) = delete;
   ChessBoard(const ChessBoard &) = delete;
-
+  
   ~ChessBoard();
   explicit ChessBoard(uint16_t width, uint16_t height);
   void draw(WINDOW *rootWindow, uint16_t nrows, uint16_t ncols);

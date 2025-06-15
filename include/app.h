@@ -1,8 +1,7 @@
 #ifndef __APP_H__
 #define __APP_H__
 
-#include "ncursesw/ncurses.h"
-
+#include "ncursesw/ncurses.h"               
 #include "chessboard.h"
 
 /**

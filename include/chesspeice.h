@@ -26,7 +26,7 @@ public:
   void operator=(const ChessPeiceFactory &&) = delete;
   ChessPeiceFactory(const ChessPeiceFactory &) = delete;
 
-  ChessPeice *getPeice(PeiceType peiceType);
+  ChessPeice *getPeice(PeiceType peiceType,bool isWhite,std::pair<uint8_t,uint8_t> coordinates);
   static ChessPeiceFactory *getInstance();
 };
 
@@ -34,14 +34,17 @@ class ChessPeice {
 private:
   const uint8_t _defaultLocationX{0};
   const uint8_t _defaultLocationY{0};
-  const bool _isWhite{true};
   std::pair<uint8_t, uint8_t> _currentCoordinates;
-
+  virtual void initAsset()=0;
+protected:
+  const char *asset[3]{"","",""};
 public:
-  explicit ChessPeice(bool isWhite,std::pair<uint8_t,uint8_t>currentCoordinates);
+  const bool isWhite{true};
+  explicit ChessPeice(bool isWhitePeice,std::pair<uint8_t,uint8_t>currentCoordinates);
   virtual ~ChessPeice();
   std::pair<uint8_t, uint8_t> getCoordinates() const;
-  virtual const char **getAsset() = 0;
+  void setCoordinates(const std::pair<uint8_t,uint8_t> &coordinates);
+  const char **getAsset() ;
 };
 
 class Knight : public ChessPeice {
@@ -50,11 +53,10 @@ class Knight : public ChessPeice {
   //  ▔▐▓
   //  ▃▓▓▙
 private:
-  const char *asset[3]{"▂▟▟ ", "▔▐▓ ", "▃▓▓▙"};
+  void initAsset() override;
 
 public:
   explicit Knight(bool isWhite, std::pair<uint8_t, uint8_t> coordinates);
-  const char **getAsset() override;
 };
 
 class Pawn : public ChessPeice {
@@ -63,7 +65,10 @@ class Pawn : public ChessPeice {
   //     ▟▙
   //    ▟██▙
 private:
-  const char *asset[3]{"▟██▙", " ▟▙ ", "▟██▙"};
+  void initAsset() override;
+
+public:  
+  explicit Pawn(bool isWhite, std::pair<uint8_t, uint8_t> coordinates);
 };
 
 class Bishop : public ChessPeice {
@@ -71,6 +76,11 @@ class Bishop : public ChessPeice {
   //     ▜▓▛
   //     ▀█▀
   //     ▟█▙
+private:
+  void initAsset() override;
+
+public:  
+  explicit Bishop(bool isWhite, std::pair<uint8_t, uint8_t> coordinates);
 };
 
 class Rook : public ChessPeice {
@@ -78,6 +88,11 @@ class Rook : public ChessPeice {
   //    ▙▟▙▟
   //     ▓▓
   //    ▟██▙
+private:
+  void initAsset() override;
+
+public:  
+  explicit Rook(bool isWhite, std::pair<uint8_t, uint8_t> coordinates);
 };
 
 class Queen : public ChessPeice {
@@ -85,6 +100,11 @@ class Queen : public ChessPeice {
   //    ▜▟▙▛
   //     ▙▟          ▙
   //    ▟▓▓▙
+private:
+  void initAsset() override;
+
+public:  
+  explicit Queen(bool isWhite, std::pair<uint8_t, uint8_t> coordinates);
 };
 
 class King : public ChessPeice {
@@ -92,6 +112,11 @@ class King : public ChessPeice {
   //   ▜➕▛
   //    ▓▓
   //   ▟██▙
+private:
+  void initAsset() override;
+
+public:  
+  explicit King(bool isWhite, std::pair<uint8_t, uint8_t> coordinates);
 };
 
 #endif

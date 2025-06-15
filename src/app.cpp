@@ -1,9 +1,9 @@
+#include <iostream>
+#include <cwchar>
+#include <ostream>
 #include "app.h"
 #include "ncursesw/ncurses.h"
 #include <clocale>
-#include <cwchar>
-#include <iostream>
-#include <ostream>
 
 ChessApp *ChessApp::_app = nullptr;
 
@@ -58,9 +58,10 @@ void ChessApp::run() {
       wrefresh(rootWindow);
       delwin(rootWindow);
 
-      rootWindow = newwin(LINES - 6, COLS - 10, 2, 5);
+//      rootWindow = newwin(LINES - 6, COLS - 10, 2, 5);
+      rootWindow = newwin(34, 50, 2, 5);
       box(rootWindow, 0, 0);
-      mvprintw(LINES - 4, 4, "Window Size: %d %d", LINES, COLS);
+      mvprintw(0, 4, "Window Size: %d %d", LINES, COLS);
       refresh();
       _chessBoard.draw(rootWindow,12,12);    
       break;
@@ -69,7 +70,7 @@ void ChessApp::run() {
       break;
     }
   }
-  /// Clear up screen
+  // Clear up screen
   delwin(rootWindow);
   endwin();
   return;
@@ -79,7 +80,13 @@ void ChessApp::init() {
   _initLogging();
   setlocale(LC_ALL, "");
   initscr();
+
+  // Hide Cursor.  
+  curs_set(0);
   start_color();
+
+  // Disable Line Buffering and dont wait for carriage return. Makes character 
+  // typed by user immidiately available to the program.
   cbreak();
   noecho();
   keypad(rootWindow, true);
@@ -87,7 +94,7 @@ void ChessApp::init() {
 
   // Initial chess board outline.
   clear();
-  rootWindow = newwin(LINES - 6, COLS - 10, 2, 5);
+  rootWindow = newwin(34, 50, 2, 5);
   _chessBoard.init();
   _chessBoard.draw(rootWindow,12,12);
 }
