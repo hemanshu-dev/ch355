@@ -1,6 +1,7 @@
 #include "chesspeice.h"
 #include "ncursesw/ncurses.h"
 #include <cstdint>
+#include <sys/types.h>
 #include <utility>
 
 #include "chessboard.h"
@@ -50,9 +51,9 @@ void ChessBoard::init() {
   _blackChessPeices[5] = ChessPeiceFactory::getInstance()->getPeice(
       ChessPeiceFactory::PeiceType::BISHOP, false, std::make_pair(5, 0));
 
-  _blackChessPeices[3] = ChessPeiceFactory::getInstance()->getPeice(
-      ChessPeiceFactory::PeiceType::KING, false, std::make_pair(4, 0));
   _blackChessPeices[4] = ChessPeiceFactory::getInstance()->getPeice(
+      ChessPeiceFactory::PeiceType::KING, false, std::make_pair(4, 0));
+  _blackChessPeices[3] = ChessPeiceFactory::getInstance()->getPeice(
       ChessPeiceFactory::PeiceType::QUEEN, false, std::make_pair(3, 0));
 
   _whiteChessPeices[0] = ChessPeiceFactory::getInstance()->getPeice(
@@ -110,7 +111,7 @@ void ChessBoard::draw(WINDOW *rootWindow, uint16_t nrows, uint16_t ncols) {
   mvprintw(0, 4, "Window Size: %d %d", LINES, COLS);
   refresh();
   wclear(rootWindow);
-  box(rootWindow, 0, 0);
+  // Render ChessBoard.
   for (uint8_t xIndex = 0; xIndex < 8; xIndex++) {
     for (uint8_t yIndex = 0; yIndex < 8; yIndex++) {
       wattron(rootWindow,
@@ -122,18 +123,16 @@ void ChessBoard::draw(WINDOW *rootWindow, uint16_t nrows, uint16_t ncols) {
                                                    : Colors::EMPTY_BLACK_CELL));
     }
   }
-  wrefresh(rootWindow);
 
-  for (uint8_t index = 0; index < 16; index++) {
-    drawPeice(rootWindow, *(_blackChessPeices[index]));
-    drawPeice(rootWindow, *(_whiteChessPeices[index]));
+  // Render Chess Peices on default locations.
+  for (uint8_t index=0;index<16;index++){
+    drawPeice(rootWindow,*_blackChessPeices[index]);
+    drawPeice(rootWindow,*_whiteChessPeices[index]);
   }
-  //  ChessPeice *peice = ChessPeiceFactory::getInstance()->getPeice(
-  //      ChessPeiceFactory::PeiceType::ROOK);
-  //  drawPeice(rootWindow, *peice);
-  //  ChessPeice *knightPeice = ChessPeiceFactory::getInstance()->getPeice(
-  //      ChessPeiceFactory::PeiceType::KNIGHT);
-  //  drawPeice(rootWindow, *knightPeice);
+  wrefresh(rootWindow);
+  box(rootWindow, 0, 0);
+ _setFocusOnPeice(rootWindow,*_blackChessPeices[_blackPeiceOnFocusIndex]);
+ _setFocusOnPeice(rootWindow,*_whiteChessPeices[_whitePeiceOnFocusIndex]);
 }
 
 /**
@@ -147,12 +146,14 @@ void ChessBoard::drawPeice(WINDOW *rootWindow, ChessPeice &peice) {
   const uint8_t yCellIndex = peice.getCoordinates().second;
   const uint8_t xCellIndex = peice.getCoordinates().first;
 
+  // Render the peice.
   wattron(rootWindow,
           COLOR_PAIR(!((xCellIndex + yCellIndex) & 1)
                          ? (peice.isWhite ? Colors::WHITE_PEICE_WHITE_CELL
                                            : Colors::BLACK_PEICE_WHITE_CELL)
                          : (peice.isWhite ? Colors::WHITE_PEICE_BLACK_CELL
                                            : Colors::BLACK_PEICE_BLACK_CELL)));
+
 
   for (uint8_t cellRow = 1; cellRow < 4; cellRow++) {
     mvwprintw(rootWindow, (yCellIndex * 4) + cellRow + 1, (xCellIndex * 6) + 2,
@@ -164,10 +165,190 @@ void ChessBoard::drawPeice(WINDOW *rootWindow, ChessPeice &peice) {
                                             : Colors::BLACK_PEICE_WHITE_CELL)
                           : (peice.isWhite ? Colors::WHITE_PEICE_BLACK_CELL
                                             : Colors::BLACK_PEICE_BLACK_CELL)));
-  //    wattroff(rootWindow, COLOR_PAIR(!((xCellIndex + yCellIndex) & 1) ?
-  //                 Colors::WHITE_PEICE_WHITE_CELL:
-  //                 Colors::WHITE_PEICE_BLACK_CELL));
-  wrefresh(rootWindow);
+}
+
+
+/**
+ * @brief : Set focus to peice on the left
+ */
+void ChessBoard::setFocusLeft(WINDOW* rootWindow){
+  _removeFocusOnPeice(rootWindow,*_blackChessPeices[_blackPeiceOnFocusIndex]);
+  if(_blackPeiceOnFocusIndex & (1<<3)){
+    _blackPeiceOnFocusIndex = ((_blackPeiceOnFocusIndex - 1) % 8 ) + 8;
+  }
+  else{
+    _blackPeiceOnFocusIndex = ( _blackPeiceOnFocusIndex + 7 ) % 8;
+  }
+ _setFocusOnPeice(rootWindow,*_blackChessPeices[_blackPeiceOnFocusIndex]);
+}
+
+/**
+ * @brief : Draw borders around focused Chess Peice.
+ *
+ * @param peice : Pointer to ChessPeice around which to draw borders.
+ */
+void ChessBoard::_setFocusOnPeice(WINDOW *rootWindow, ChessPeice& peice) const{
+  const char **asset = peice.getAsset();
+  const char **borders  = peice.getBorderes();
+  const uint8_t yCellIndex = peice.getCoordinates().second;
+  const uint8_t xCellIndex = peice.getCoordinates().first;
+
+  //Render Borders around the cell if the peice is on Focus.
+  {
+    wattron(rootWindow,
+            COLOR_PAIR(!((xCellIndex + yCellIndex) & 1)
+                           ? (peice.isWhite ? Colors::WHITE_PEICE_WHITE_CELL
+                                            : Colors::BLACK_PEICE_WHITE_CELL)
+                           : (peice.isWhite ? Colors::WHITE_PEICE_BLACK_CELL
+                                            : Colors::BLACK_PEICE_BLACK_CELL)));
+
+    for (uint8_t cellRow = 1; cellRow < 5; cellRow++) {
+      mvwprintw(rootWindow, (yCellIndex * 4) + cellRow, (xCellIndex * 6) + 1,
+                "%s", borders[cellRow - 1]);
+    }
+    wattroff(
+        rootWindow,
+        COLOR_PAIR(!((xCellIndex + yCellIndex) & 1)
+                       ? (peice.isWhite ? Colors::WHITE_PEICE_WHITE_CELL
+                                        : Colors::BLACK_PEICE_WHITE_CELL)
+                       : (peice.isWhite ? Colors::WHITE_PEICE_BLACK_CELL
+                                        : Colors::BLACK_PEICE_BLACK_CELL)));
+    wattron(
+        rootWindow,
+        COLOR_PAIR(((xCellIndex + yCellIndex) & 1)&&(yCellIndex<7)
+                       ? ((peice.isWhite) 
+                              ? Colors::WHITE_PEICE_WHITE_CELL
+                              : Colors::BLACK_PEICE_WHITE_CELL)
+                       : ((peice.isWhite) 
+                              ? Colors::WHITE_PEICE_BLACK_CELL
+                              : Colors::BLACK_PEICE_BLACK_CELL)));
+    mvwprintw(rootWindow, (yCellIndex * 4) + 5, (xCellIndex * 6) + 1, "%s",
+              borders[4]);
+
+    wattroff(rootWindow,
+             COLOR_PAIR(((xCellIndex + yCellIndex) & 1)&&(yCellIndex<7)
+                            ? ((peice.isWhite)
+                                   ? Colors::WHITE_PEICE_WHITE_CELL
+                                   : Colors::BLACK_PEICE_WHITE_CELL)
+                            : ( (peice.isWhite)
+                                   ? Colors::WHITE_PEICE_BLACK_CELL
+                                   : Colors::BLACK_PEICE_BLACK_CELL)));
+  }
+
+  // Render the peice.
+  {
+    wattron(rootWindow,
+            COLOR_PAIR(!((xCellIndex + yCellIndex) & 1)
+                           ? (peice.isWhite ? Colors::WHITE_PEICE_WHITE_CELL
+                                            : Colors::BLACK_PEICE_WHITE_CELL)
+                           : (peice.isWhite ? Colors::WHITE_PEICE_BLACK_CELL
+                                            : Colors::BLACK_PEICE_BLACK_CELL)));
+
+    for (uint8_t cellRow = 1; cellRow < 4; cellRow++) {
+      mvwprintw(rootWindow, (yCellIndex * 4) + cellRow + 1,
+                (xCellIndex * 6) + 2, "%s", asset[cellRow - 1]);
+    }
+
+    wattroff(
+        rootWindow,
+        COLOR_PAIR(!((xCellIndex + yCellIndex) & 1)
+                       ? (peice.isWhite ? Colors::WHITE_PEICE_WHITE_CELL
+                                        : Colors::BLACK_PEICE_WHITE_CELL)
+                       : (peice.isWhite ? Colors::WHITE_PEICE_BLACK_CELL
+                                        : Colors::BLACK_PEICE_BLACK_CELL)));
+  }
+}
+
+/**
+ * @brief : Remove focus from the chess peice.
+ *
+ * @param window
+ * @param peice
+ */
+void ChessBoard::_removeFocusOnPeice(WINDOW* window, ChessPeice& peice) {
+  uint8_t xCellIndex = peice.getCoordinates().first;
+  uint8_t yCellIndex = peice.getCoordinates().second;
+  wattron(window,
+         COLOR_PAIR(!((xCellIndex + yCellIndex) & 1) ? Colors::EMPTY_WHITE_CELL
+                                             : Colors::EMPTY_BLACK_CELL));
+  _printCell(window, !((xCellIndex + yCellIndex) & 1), xCellIndex, yCellIndex);
+  wattroff(window,
+          COLOR_PAIR(!((xCellIndex + yCellIndex) & 1) ? Colors::EMPTY_WHITE_CELL
+                                              : Colors::EMPTY_BLACK_CELL));
+  drawPeice(window,peice);
+
+  // Repaint the row below chess Peice.
+  wattron(window,
+         COLOR_PAIR((((xCellIndex + yCellIndex) & 1) && yCellIndex < 7)
+                        ? ((peice.isWhite) ? Colors::WHITE_PEICE_WHITE_CELL
+                                           : Colors::BLACK_PEICE_WHITE_CELL)
+                        : ((peice.isWhite) ? Colors::WHITE_PEICE_BLACK_CELL
+                                           : Colors::BLACK_PEICE_BLACK_CELL)));
+  mvwprintw(window, (yCellIndex * 4) + 5, (xCellIndex * 6) + 1, "%s","      ");
+
+  wattroff(window, COLOR_PAIR((((xCellIndex + yCellIndex) & 1) && yCellIndex < 7)
+                                     ? ((peice.isWhite)
+                                            ? Colors::WHITE_PEICE_WHITE_CELL
+                                            : Colors::BLACK_PEICE_WHITE_CELL)
+                                     : ((peice.isWhite)
+                                            ? Colors::WHITE_PEICE_BLACK_CELL
+                                            : Colors::BLACK_PEICE_BLACK_CELL)));
+  if(yCellIndex>=7){
+    box(window,0,0);
+  }
+}
+
+
+/**
+ * @brief Move the focus to chess peice on the right.
+ *
+ * @param rootWindow
+ */
+void ChessBoard::setFocusRight(WINDOW* rootWindow){
+  _removeFocusOnPeice(rootWindow,*_blackChessPeices[_blackPeiceOnFocusIndex]);
+  if(_blackPeiceOnFocusIndex & (1<<3)){
+    _blackPeiceOnFocusIndex = ((_blackPeiceOnFocusIndex + 1) % 8 ) + 8;
+  }
+  else{
+    _blackPeiceOnFocusIndex = ( _blackPeiceOnFocusIndex + 1 ) % 8;
+  }
+ _setFocusOnPeice(rootWindow,*_blackChessPeices[_blackPeiceOnFocusIndex]);
+
+}
+
+
+/**
+ * @brief Move the focus to chess peice above.
+ *
+ * @param rootWindow
+ */
+void ChessBoard::setFocusUp(WINDOW* rootWindow){
+  _removeFocusOnPeice(rootWindow,*_blackChessPeices[_blackPeiceOnFocusIndex]);
+  if(_blackPeiceOnFocusIndex & (1<<3)){
+    _blackPeiceOnFocusIndex = (_blackPeiceOnFocusIndex - 8);
+  }
+  else{
+    _blackPeiceOnFocusIndex = ( _blackPeiceOnFocusIndex + 8 ) ;
+  }
+  _setFocusOnPeice(rootWindow,*_blackChessPeices[_blackPeiceOnFocusIndex]);
+
+}
+
+
+/**
+ * @brief Move the Focus to chess peice below.
+ *
+ * @param rootWindow
+ */
+void ChessBoard::setFocusDown(WINDOW* rootWindow){
+  _removeFocusOnPeice(rootWindow,*_blackChessPeices[_blackPeiceOnFocusIndex]);
+  if(_blackPeiceOnFocusIndex & (1<<3)){
+    _blackPeiceOnFocusIndex = (_blackPeiceOnFocusIndex - 8);
+  }
+  else{
+    _blackPeiceOnFocusIndex = ( _blackPeiceOnFocusIndex + 8 ) ;
+  }
+  _setFocusOnPeice(rootWindow,*_blackChessPeices[_blackPeiceOnFocusIndex]);
 }
 
 /**

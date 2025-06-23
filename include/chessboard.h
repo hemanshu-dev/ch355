@@ -12,13 +12,15 @@ class ChessBoard {
 private:
   const std::pair<uint16_t, uint16_t> _minWindowSize{26, 26};
   std::pair<uint16_t, uint16_t> _currentWindowSize;
-  const char *whiteCell = {"WWW"};
-  const char *blackCell = {"bbb"};
   void _printCell(WINDOW *rootWindow, bool isWhiteCell, uint8_t xCellIndex,
                   uint8_t yCellIndex);
+  void _setFocusOnPeice(WINDOW *rootWindow, ChessPeice& peice) const;
+  void _removeFocusOnPeice(WINDOW *rootWindow, ChessPeice& peice);
+  
   std::vector<ChessPeice*> _blackChessPeices{16,nullptr};
-
   std::vector<ChessPeice*> _whiteChessPeices{16,nullptr};
+  uint8_t _whitePeiceOnFocusIndex{3};    
+  uint8_t _blackPeiceOnFocusIndex{7};    
 
 public:
   enum Colors : short {
@@ -37,8 +39,12 @@ public:
   ~ChessBoard();
   explicit ChessBoard(uint16_t width, uint16_t height);
   void draw(WINDOW *rootWindow, uint16_t nrows, uint16_t ncols);
-  void drawPeice(WINDOW* window, ChessPeice& peice);
+  void drawPeice(WINDOW* window, ChessPeice& ChessPeice);
   void rotate();
+  void setFocusLeft(WINDOW* window);
+  void setFocusRight(WINDOW* window);
+  void setFocusUp(WINDOW* window);
+  void setFocusDown(WINDOW* window);
   void update();
   void init();
 };

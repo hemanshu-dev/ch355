@@ -38,13 +38,19 @@ private:
   virtual void initAsset()=0;
 protected:
   const char *asset[3]{"","",""};
+  const char *borders[5]{"┌────┐",
+                         "│    │",
+                         "│    │",
+                         "│    │",
+                         "└────┘"};  
 public:
   const bool isWhite{true};
   explicit ChessPeice(bool isWhitePeice,std::pair<uint8_t,uint8_t>currentCoordinates);
   virtual ~ChessPeice();
   std::pair<uint8_t, uint8_t> getCoordinates() const;
   void setCoordinates(const std::pair<uint8_t,uint8_t> &coordinates);
-  const char **getAsset() ;
+  const char **getAsset();
+  const char **getBorderes(){return borders;};
 };
 
 class Knight : public ChessPeice {

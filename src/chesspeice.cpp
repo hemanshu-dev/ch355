@@ -1,5 +1,6 @@
 #include "chesspeice.h"
 #include "ncursesw/ncurses.h"
+#include <cmath>
 #include <utility>
 
 ChessPeiceFactory *ChessPeiceFactory::_instance = nullptr;
@@ -7,6 +8,12 @@ ChessPeiceFactory *ChessPeiceFactory::_instance = nullptr;
 ChessPeiceFactory::ChessPeiceFactory() {}
 ChessPeice::~ChessPeice() {}
 
+
+/**
+ * @brief Get the instance of singleton class ChessPeiceFactory
+ *
+ * @return ChessPeiceFactory*
+ */
 ChessPeiceFactory *ChessPeiceFactory::getInstance() {
   if (!_instance) {
     _instance = new ChessPeiceFactory();
@@ -14,8 +21,17 @@ ChessPeiceFactory *ChessPeiceFactory::getInstance() {
   return _instance;
 }
 
-ChessPeice *
-ChessPeiceFactory::getPeice(PeiceType peiceType, bool isWhite,
+
+/**
+ * @brief Return a pointer to a Subclass of type ChessPeice.
+ *
+ * @param peiceType : Category of chess peice.
+ * @param isWhite   : Is the Chess Peice white.
+ * @param coordinates : Coordinates where teh peice is supossed to be spawn.
+ *
+ * @return ChessPeice*
+ */
+ChessPeice *ChessPeiceFactory::getPeice(PeiceType peiceType, bool isWhite,
                             std::pair<uint8_t, uint8_t> coordinates) {
   switch (peiceType) {
   case PeiceType::KNIGHT: {
@@ -50,6 +66,12 @@ std::pair<uint8_t, uint8_t> ChessPeice::getCoordinates() const {
   return _currentCoordinates;
 }
 
+
+/**
+ * @brief Change the coordinates of chessPeice.
+ *
+ * @param coordinates : new x , y coordinates of the chess peice.
+ */
 void ChessPeice::setCoordinates(const std::pair<uint8_t, uint8_t> &coordinates) {
   if (coordinates.first >= 0 && coordinates.first < 8 &&
       coordinates.second >= 0 && coordinates.second < 8) {
