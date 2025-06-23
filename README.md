@@ -35,6 +35,12 @@ mkdir -p build
 cd build
 cmake ..
 cmake --build .
+export $PKG_CONFIG_DIR=$(pwd)/../lib/generated_libs/lib64/pkgconfig
+echo $PKG_CONFIG_DIR 
+# Make sure $PKG_CONFIG_DIR has `<PROJECT_DIR>/lib/generated_libs/lib64/pkgconfig`
+# this value. 
+pkg-config --cflags ncurses++w
+# This outputs the location of the libs dir inside project root location.
 ```
 4. Run the program and play the game! :tada:
 ```sh

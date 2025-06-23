@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <iostream>
 #include <cwchar>
 #include <ostream>
@@ -50,22 +51,46 @@ void ChessApp::handleArgs(int argc, char *argv[]) {
 void ChessApp::run() {
   int ch;
   while ((ch = wgetch(rootWindow)) != 113) {
+    mvprintw(1, 4, "KEY_EVENT:  %d", ch);
+//    refresh();
     switch (ch) {
     // Handle terminal resize event.
-    case KEY_RESIZE:
+
+    case KEY_RESIZE:{
       clear();
       wborder(rootWindow, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
       wrefresh(rootWindow);
       delwin(rootWindow);
 
-//      rootWindow = newwin(LINES - 6, COLS - 10, 2, 5);
       rootWindow = newwin(34, 50, 2, 5);
-      box(rootWindow, 0, 0);
       mvprintw(0, 4, "Window Size: %d %d", LINES, COLS);
       refresh();
-      _chessBoard.draw(rootWindow,12,12);    
+      _chessBoard.draw(rootWindow,12,12);  
+//      _chessBoard.setFocusLeft(rootWindow);
+      box(rootWindow, 0, 0);
       break;
-
+    }
+    // Handle for Left Key                     
+    case 68:{
+      // Change the focus to neighboring peice.
+     _chessBoard.setFocusLeft(rootWindow);
+     break;
+    }
+    // Right
+    case 67:{
+     _chessBoard.setFocusRight(rootWindow);
+     break;
+    }
+    // UP
+    case 65:{
+     _chessBoard.setFocusUp(rootWindow);
+     break;
+    }
+    // Down
+    case 66:{
+     _chessBoard.setFocusDown(rootWindow);
+     break;
+    }
     default:
       break;
     }
