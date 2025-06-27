@@ -15,6 +15,7 @@ set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set(BIN_DIR     ${PROJECT_SOURCE_DIR}/bin)
 set(LIB_DIR     ${PROJECT_SOURCE_DIR}/lib)
 set(SRC_DIR     ${PROJECT_SOURCE_DIR}/src)
+set(TEST_DIR    ${PROJECT_SOURCE_DIR}/tests)
 
 set(HEADERS_DIR ${PROJECT_SOURCE_DIR}/inc)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -40,7 +41,9 @@ ExternalProject_ADD(googletest  PREFIX              ${LIB_DIR}/googletest/
                                 SOURCE_DIR          ${LIB_DIR}/googletest/
                                 INSTALL_DIR         ${LIB_DIR}/generated_libs/
                                 BINARY_DIR          ${LIB_DIR}/googletest/build/
-                                CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${LIB_DIR}/generated_libs)
+                                CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${LIB_DIR}/generated_libs -DBUILD_GMOCK=ON -DBUILD_GTEST=ON -DGTEST_CREATE_SHARED_LIBRARY=1 -DGTEST_LINKED_AS_SHARED_LIBRARY=1)
+
+pkg_check_modules(GTEST REQUIRED gtest)
 
 add_executable(ch355)
 
@@ -57,3 +60,25 @@ target_link_directories(ch355 PRIVATE ${NCURSESW_LIBRARY_DIRS})
 target_link_libraries(ch355 PRIVATE -lncursesw
                             PRIVATE -lmenuw)
 
+
+
+enable_testing()
+
+add_executable(ch355_test)
+target_sources(ch355_test PRIVATE ${TEST_DIR}/chessboard_unit.cpp
+                          PRIVATE ${SRC_DIR}/chessboard.cpp
+                          PRIVATE ${SRC_DIR}/chesspeice.cpp)
+
+target_include_directories(ch355_test PRIVATE ${INCLUDE_DIR}
+                                 PRIVATE ${LIB_DIR}/generated_libs/include)
+target_link_directories(ch355_test PRIVATE ${NCURSESW_LIBRARY_DIRS}
+                              PRIVATE ${GTEST_LIBRARY_DIRS})
+
+target_link_libraries (ch355_test PRIVATE -lgtest
+                                  PRIVATE -lgtest_main
+                                  PRIVATE -lncursesw
+                                  PRIVATE -lmenuw)
+                              #target_compile_options(ch355_test PRIVATE ${GTEST_CFLAGS})
+include(GoogleTest)
+gtest_discover_tests(ch355_test)
+add_test(ChessBoardTest ch355_test)                        
