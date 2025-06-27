@@ -47,6 +47,16 @@ public:
   void setFocusDown(WINDOW* window);
   void update();
   void init();
+
+  // Read functions for unit-testing
+  uint8_t getCurrentWhitePeiceIndex(){return _whitePeiceOnFocusIndex;}
+  uint8_t getCurrentBlackPeiceIndex(){return _blackPeiceOnFocusIndex;}
+  ChessPeice* getWhitePeiceOnIndex(uint8_t index){ 
+      return (index<_whiteChessPeices.size()?
+                    _whiteChessPeices[index]:nullptr);}
+  ChessPeice* getBlackPeiceOnIndex(uint8_t index){ 
+      return (index<_blackChessPeices.size()?
+                    _blackChessPeices[index]:nullptr);}
 };
 
 #endif
